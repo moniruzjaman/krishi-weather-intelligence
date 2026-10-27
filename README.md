@@ -143,13 +143,6 @@ Use KWI as an evidence provider. Let the KrishiAI conversational layer explain K
 
 ```bash
 npm install
-a npm run typecheck
-npm run build
-```
-
-Correct command without the accidental prefix:
-
-```bash
 npm run typecheck
 npm run build
 ```

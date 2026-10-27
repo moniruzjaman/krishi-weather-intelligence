@@ -27,12 +27,16 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        # .npmrc in repo root sets allow-scripts=true so esbuild's postinstall
+        # (needed by tsx) runs without warning.
         run: npm install --no-audit --no-fund
 
       - name: Typecheck
         run: npm run typecheck
 
       - name: Test
+        # test script uses test/*.test.ts (not test/**/*.test.ts) because
+        # GitHub Actions bash doesn't enable globstar by default.
         run: npm test
 
   build:

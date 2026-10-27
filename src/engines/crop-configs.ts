@@ -2,6 +2,7 @@ import type { CropConfig } from '../types/index.js';
 import {
   MUSTARD, POTATO, PEANUT, LENTIL, CHICKPEA, MUNGBEAN, SESAME, CHILI, ONION,
 } from './crop-configs-new.js';
+import { CROPS_EXTENDED } from './crop-configs-extended.js';
 
 export const RICE: CropConfig = {
   id: 'rice',
@@ -336,6 +337,7 @@ export const CROPS: Record<string, CropConfig> = {
   mustard: MUSTARD, potato: POTATO, peanut: PEANUT, lentil: LENTIL,
   chickpea: CHICKPEA, mungbean: MUNGBEAN, sesame: SESAME, chili: CHILI,
   onion: ONION,
+  ...CROPS_EXTENDED,
 };
 
 /**

@@ -1,0 +1,56 @@
+{
+  "name": "@krishiai/weather-intelligence",
+  "version": "0.2.0",
+  "description": "Standalone agricultural weather intelligence SDK and HTTP adapter for the KrishiAI ecosystem.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js"
+    },
+    "./providers/open-meteo": {
+      "types": "./dist/providers/open-meteo.d.ts",
+      "import": "./dist/providers/open-meteo.js"
+    },
+    "./api": {
+      "types": "./dist/api.d.ts",
+      "import": "./dist/api.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "docs",
+    "examples"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test test/**/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agriculture",
+    "weather",
+    "weather-intelligence",
+    "krishiai",
+    "bangladesh",
+    "open-meteo",
+    "farm"
+  ],
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

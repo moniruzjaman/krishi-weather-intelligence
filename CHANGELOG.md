@@ -68,3 +68,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added framework-neutral HTTP handler for `/api/v1/intelligence`.
 - Added Next.js/Vercel integration example.
 - Kept the core independent of React, Next.js, databases and application state.
+
+## [Unreleased] — PR #4 additions
+
+### Added
+- **Structured error hierarchy** (`src/errors.ts`): `WeatherProviderError`
+  (base), `WeatherTimeoutError`, `WeatherApiError`, `UnknownProviderError`,
+  `InvalidLocationError`, `ValidationError`. All extend `Error` and can be
+  caught with a single `instanceof WeatherProviderError` check.
+
+- **LRU cache** (`src/utils/cache.ts`): replaces the unbounded `Map` with a
+  configurable entry cap (default 256). Evicts least-recently-used entries
+  when full, preventing memory leaks in long-running processes.
+
+- **Input validation**: `validateLocation()` checks lat/lng ranges;
+  `validateIsoDate()` checks ISO date format AND calendar validity (rejects
+  Feb 30, etc.). `createActiveCrop()` now validates `sowingDate`,
+  `expectedHarvestDate`, and `stageStartDate` before doing any work.
+
+- **`getCropConfig` throws on unknown cropId** instead of silently falling
+  back to RICE. A typo like `cropId: 'ric'` now produces a clear error
+  listing available crops.
+
+- **30 new tests** covering error hierarchy, validation, LRU eviction,
+  cacheMaxEntries option, and provider error integration (48 total, all
+  passing).
+
+### Changed
+- `WeatherIntelligence` constructor accepts `cacheMaxEntries` option.
+- `createWeatherAdapter` throws `UnknownProviderError` (was a plain `Error`).
+- Open-Meteo adapter throws `WeatherTimeoutError` on abort and
+  `WeatherApiError` on non-2xx responses (were plain `Error`).

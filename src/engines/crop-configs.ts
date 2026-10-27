@@ -330,8 +330,26 @@ export const JUTE: CropConfig = {
 
 export const CROPS: Record<string, CropConfig> = { rice: RICE, wheat: WHEAT, jute: JUTE };
 
+/**
+ * Look up a crop configuration by id.
+ *
+ * Throws `ValidationError` for unknown crop ids instead of silently falling
+ * back to RICE. The previous behavior hid typos from consumers — a farmer
+ * asking for cropId 'ric' would get rice data without any indication that
+ * the id was wrong.
+ */
 export function getCropConfig(cropId: string): CropConfig {
-  return CROPS[cropId] ?? RICE;
+  const config = CROPS[cropId];
+  if (!config) {
+    const available = Object.keys(CROPS).join(', ');
+    const err = new Error(
+      `Unknown cropId: '${cropId}'. Available: ${available}.`,
+    );
+    (err as Error & { code: string; field: string }).code = 'VALIDATION_ERROR';
+    (err as Error & { code: string; field: string }).field = 'cropId';
+    throw err;
+  }
+  return config;
 }
 
 export function getAllCropConfigs(): CropConfig[] {

@@ -35,7 +35,7 @@
     "clean": "rm -rf dist",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --import tsx/esm --test test/**/*.test.ts",
+    "test": "node --import tsx/esm --test test/*.test.ts",
     "test:unit": "node --import tsx/esm --test test/open-meteo.test.ts test/facade.test.ts"
   },
   "engines": {

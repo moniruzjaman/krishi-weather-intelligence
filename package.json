@@ -35,10 +35,11 @@
     "clean": "rm -rf dist",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test test/**/*.test.js"
+    "test": "node --import tsx/esm --test test/**/*.test.ts",
+    "test:unit": "node --import tsx/esm --test test/open-meteo.test.ts test/facade.test.ts"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "license": "MIT",
   "keywords": [
@@ -48,9 +49,13 @@
     "krishiai",
     "bangladesh",
     "open-meteo",
-    "farm"
+    "farm",
+    "typescript",
+    "sdk",
+    "agtech"
   ],
   "devDependencies": {
+    "tsx": "^4.23.15",
     "typescript": "^5.8.3"
   }
 }

@@ -1,4 +1,7 @@
 import type { CropConfig } from '../types/index.js';
+import {
+  MUSTARD, POTATO, PEANUT, LENTIL, CHICKPEA, MUNGBEAN, SESAME, CHILI, ONION,
+} from './crop-configs-new.js';
 
 export const RICE: CropConfig = {
   id: 'rice',
@@ -328,7 +331,12 @@ export const JUTE: CropConfig = {
   color: '#a16207',
 };
 
-export const CROPS: Record<string, CropConfig> = { rice: RICE, wheat: WHEAT, jute: JUTE };
+export const CROPS: Record<string, CropConfig> = {
+  rice: RICE, wheat: WHEAT, jute: JUTE,
+  mustard: MUSTARD, potato: POTATO, peanut: PEANUT, lentil: LENTIL,
+  chickpea: CHICKPEA, mungbean: MUNGBEAN, sesame: SESAME, chili: CHILI,
+  onion: ONION,
+};
 
 /**
  * Look up a crop configuration by id.

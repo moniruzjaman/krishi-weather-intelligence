@@ -99,3 +99,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `createWeatherAdapter` throws `UnknownProviderError` (was a plain `Error`).
 - Open-Meteo adapter throws `WeatherTimeoutError` on abort and
   `WeatherApiError` on non-2xx responses (were plain `Error`).
+
+## [Unreleased] — PR #5 additions
+
+### Added
+- **9 new crop configs**: mustard, potato, peanut, lentil, chickpea,
+  mungbean, sesame, chili, onion — bringing the total from 3 to 12 crops.
+  Each config includes:
+  - Growth stages with durationDays, water requirement, disease susceptibility,
+    heat/cold stress thresholds, and critical operations (all bilingual EN/BN)
+  - Total duration, base temperature, optimal temp range
+  - Harvest window, optimal sowing window, water requirement total
+  - Icon and color for UI rendering
+  - Source: BARI cultivation guides, aligned with the 170 varieties in the
+    user's crop CSV
+
+- **103 new tests** covering: crop registration, stage duration sums,
+  harvest window arithmetic, stage/operation field completeness, bilingual
+  content checks, createActiveCrop + getExpectedHarvestDate for every
+  new crop (151 total tests, all passing)

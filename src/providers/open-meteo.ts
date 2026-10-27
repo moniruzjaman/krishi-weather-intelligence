@@ -1,6 +1,7 @@
 import type {
   WeatherData, WeatherCurrent, WeatherHourly, WeatherDaily, AgriculturalIndices, GeoLocation,
 } from '../types/index.js';
+import { WeatherTimeoutError, WeatherApiError, UnknownProviderError } from '../errors.js';
 
 // ────────────────────────────────────────────────────────────
 // Weather Adapter Interface
@@ -87,11 +88,26 @@ export class OpenMeteoAdapter implements WeatherAdapter {
     try {
       res = await fetch(`${this.baseUrl}/forecast?${params}`, { signal: controller.signal });
     } catch (error) {
-      throw new Error(`Open-Meteo request failed: ${error instanceof Error ? error.message : String(error)}`);
+      // Distinguish timeout (AbortError) from network errors.
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new WeatherTimeoutError(
+          `Open-Meteo request timed out after ${this.timeoutMs}ms`,
+          { timeoutMs: this.timeoutMs, provider: this.providerId },
+        );
+      }
+      throw new WeatherApiError(
+        `Open-Meteo request failed: ${error instanceof Error ? error.message : String(error)}`,
+        { statusCode: 0, provider: this.providerId },
+      );
     } finally {
       clearTimeout(timer);
     }
-    if (!res.ok) throw new Error(`Open-Meteo API error: ${res.status}`);
+    if (!res.ok) {
+      throw new WeatherApiError(
+        `Open-Meteo API error: ${res.status} ${res.statusText}`,
+        { statusCode: res.status, provider: this.providerId },
+      );
+    }
 
     const data = await res.json() as Record<string, unknown>;
 
@@ -333,9 +349,6 @@ export function createWeatherAdapter(
     case 'open-meteo':
       return new OpenMeteoAdapter(options);
     default:
-      // Unknown providers should fail loudly rather than silently fall back,
-      // otherwise a typo like 'bmd' would produce Open-Meteo data and hide the
-      // misconfiguration from the operator.
-      throw new Error(`Unknown weather provider: '${provider}'. Supported: 'open-meteo'.`);
+      throw new UnknownProviderError(provider as string);
   }
 }

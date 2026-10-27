@@ -4,6 +4,7 @@ import type {
   Explanation, WeatherWindows, GrowthStageId,
 } from './types/index.js';
 import { createWeatherAdapter, type WeatherAdapter } from './providers/open-meteo.js';
+import { LruCache, validateLocation, validateIsoDate } from './utils/cache.js';
 import { computeRiskDashboard } from './engines/risk-engine.js';
 import { generateDiseaseForecast } from './engines/disease-engine.js';
 import {
@@ -77,12 +78,12 @@ export interface IntelligenceMetadata {
 export interface KWIOptions {
   adapter?: WeatherAdapter;
   cacheTtlSeconds?: number;
+  /** Maximum number of locations to keep in the LRU cache (default 256). */
+  cacheMaxEntries?: number;
 }
 
-interface CacheEntry {
-  weather: WeatherData;
-  expiresAt: number;
-}
+// Cache stores WeatherData directly; the LRU entry's `expiresAt` doubles as
+// the TTL expiry timestamp.
 
 // ────────────────────────────────────────────────────────────
 // WeatherIntelligence facade
@@ -91,11 +92,12 @@ interface CacheEntry {
 export class WeatherIntelligence {
   private readonly adapter: WeatherAdapter;
   private readonly cacheTtlMs: number;
-  private readonly cache = new Map<string, CacheEntry>();
+  private readonly cache: LruCache<string, WeatherData>;
 
   constructor(options: KWIOptions = {}) {
     this.adapter = options.adapter ?? createWeatherAdapter('open-meteo');
     this.cacheTtlMs = Math.max(0, (options.cacheTtlSeconds ?? 600) * 1000);
+    this.cache = new LruCache<string, WeatherData>(options.cacheMaxEntries ?? 256);
   }
 
   private cacheKey(location: GeoLocation): string {
@@ -115,14 +117,15 @@ export class WeatherIntelligence {
   }
 
   private async getWeatherWithCacheFlag(location: GeoLocation): Promise<{ weather: WeatherData; cacheHit: boolean }> {
+    validateLocation(location);
     const key = this.cacheKey(location);
     const hit = this.cache.get(key);
     if (hit && hit.expiresAt > Date.now()) {
-      return { weather: hit.weather, cacheHit: true };
+      return { weather: hit.value, cacheHit: true };
     }
     const weather = await this.adapter.fetchWeather(location);
     if (this.cacheTtlMs > 0) {
-      this.cache.set(key, { weather, expiresAt: Date.now() + this.cacheTtlMs });
+      this.cache.set(key, { value: weather, expiresAt: Date.now() + this.cacheTtlMs });
     }
     return { weather, cacheHit: false };
   }
@@ -286,6 +289,15 @@ export function createActiveCrop(input: {
   fieldId?: string;
   fieldName?: string;
 }): ActiveCrop {
+  // Validate inputs before doing any work.
+  validateIsoDate(input.sowingDate, 'sowingDate');
+  if (input.expectedHarvestDate) {
+    validateIsoDate(input.expectedHarvestDate, 'expectedHarvestDate');
+  }
+  if (input.stageStartDate) {
+    validateIsoDate(input.stageStartDate, 'stageStartDate');
+  }
+
   const config = getCropConfig(input.cropId);
   const harvest = input.expectedHarvestDate ?? (() => {
     const d = new Date(input.sowingDate);
@@ -305,4 +317,5 @@ export function createActiveCrop(input: {
   };
 }
 
+export * from './errors.js';
 export * from './api.js';
